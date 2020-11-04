@@ -12,8 +12,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
 spec:
-  capacity:
-    storage: 5Gi
+  resources:
+    requests:
+      storage: 5Gi
   accessModes:
     - ReadWriteOnce
 
@@ -34,6 +35,10 @@ spec:
       labels:
         app: postgres
     spec:
+      volumes:
+        - name: postgres-vl
+          persistentVolumeClaim:
+              claimName: postgres-pvc
       containers:
       - name: postgres
         image: postgres:10.13
@@ -43,6 +48,17 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 5432
-
----
+        env:
+          - name: POSTGRES_USER
+            value: testuser
+          - name: POSTGRES_DB
+            value: testdb
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+        envFrom:
+          - secretRef:
+              name: postgres-secret
+        volumeMounts:
+          - name: postgres-vl
+            mountPath: /var/lib/postgresql/data
 
