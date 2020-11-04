@@ -35,7 +35,7 @@ spec:
               name: redmine-secret
         env:
           - name: REDMINE_DB_POSTGRES
-            value: db
+            value: 10.100.26.217
           - name: REDMINE_DB_USERNAME
             value: testuser
           - name: REDMINE_DB_DATABASE
