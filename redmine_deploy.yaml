@@ -4,7 +4,7 @@ kind: Secret
 metadata:
   name: redmine-secret
 data:
-  REDMINE_DB_PASSWORD: dGVzdHBhc3N3b3JkCg==
+  REDMINE_DB_PASSWORD: dGVzdHBhc3N3b3Jk
   REDMINE_SECRET_KEY_BASE: c3VwZXJzZWNyZXRrZXkK
 
 ---
