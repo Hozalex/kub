@@ -4,7 +4,6 @@ kind: Secret
 metadata:
   name: redmine-secret
 data:
-  REDMINE_DB_PASSWORD: dGVzdHBhc3N3b3JkCg==
   REDMINE_SECRET_KEY_BASE: c3VwZXJzZWNyZXRrZXkK
 
 ---
@@ -40,3 +39,5 @@ spec:
             value: testuser
           - name: REDMINE_DB_DATABASE
             value: testdb
+          - name: REDMINE_DB_PASSWORD
+            value: testpassword
