@@ -23,10 +23,6 @@ spec:
       containers:
       - name: redmine
         image: redmine:4.1.1
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
         ports:
         - containerPort: 3000
         envFrom:
@@ -34,7 +30,7 @@ spec:
               name: redmine-secret
         env:
           - name: REDMINE_DB_POSTGRES
-            value: 10.100.26.217
+            value: 10.254.223.193
           - name: REDMINE_DB_USERNAME
             value: testuser
           - name: REDMINE_DB_DATABASE
