@@ -4,6 +4,7 @@ kind: Secret
 metadata:
   name: redmine-secret
 data:
+  REDMINE_DB_PASSWORD: dGVzdHBhc3N3b3JkCg==
   REDMINE_SECRET_KEY_BASE: c3VwZXJzZWNyZXRrZXkK
 
 ---
@@ -25,15 +26,13 @@ spec:
         image: redmine:4.1.1
         ports:
         - containerPort: 3000
-        envFrom:
-          - secretRef:
-              name: redmine-secret
         env:
           - name: REDMINE_DB_POSTGRES
-            value: 10.254.223.193
+            value: postgres-serv
           - name: REDMINE_DB_USERNAME
             value: testuser
           - name: REDMINE_DB_DATABASE
             value: testdb
-          - name: REDMINE_DB_PASSWORD
-            value: testpassword
+        envFrom:
+          - secretRef:
+              name: redmine-secret
