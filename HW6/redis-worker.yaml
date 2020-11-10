@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: worker-redis
+  template:
+    metadata:
+      labels:
+        app: worker-redis
+    spec:
+      containers:
+      - name: worker-redis
+        image: gcr.io/google-samples/gb-redisslave:v3
+        resources:
+          requests:
+            memory: "150Mi"
+            cpu: "100m"
+          limits:
+            memory: "150Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 6379
+        env:
+          - name: GET_HOST_FROM
+            value: dns
