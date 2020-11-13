@@ -1,10 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: front-svc
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
 spec:
-  selector:
-    app: my-php-front
   ports:
   - port: 80
-    targetPort: 80
+  selector:
+    app: guestbook
+    tier: frontend

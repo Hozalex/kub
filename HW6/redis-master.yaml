@@ -1,26 +1,29 @@
-apiVersion: apps/v1
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: redis-master
+  labels:
+    app: redis
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: my-redis-master
+      app: redis
+      role: master
+      tier: backend
+  replicas: 1
   template:
     metadata:
       labels:
-        app: my-redis-master
+        app: redis
+        role: master
+        tier: backend
     spec:
       containers:
-      - name: my-redis-master
+      - name: master
         image: redis
         resources:
           requests:
-            memory: "150Mi"
-            cpu: "100m"
-          limits:
-            memory: "150Mi"
-            cpu: "100m"
+            cpu: 100m
+            memory: 150Mi
         ports:
         - containerPort: 6379
