@@ -14,3 +14,36 @@ spec:
         app: prometheus
     spec:
       serviceAccount: prometheus
+      initContainers:
+        - name: prometheus-init
+          image: busybox
+          command: ['sh', '-c', 'chmod 777 /data']
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.19.2
+          ports:
+          - containerPort: 9090
+          volumeMounts:
+            - mountPath: /prometheus
+              name: prometheus-vct
+            - mountPath: /etc/prometheus
+              name: prometheus-config
+      volumes:
+        - name: prometheus-config
+          configMap:
+              name: prometheus-config
+              items:
+                - key: prometheus.yaml
+                  path: prometheus.yaml     
+  volumeClaimTemplates:
+  - metadata:
+      name: prometheus-vct
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "prometheus-storage-class"
+      resources:
+        requests:
+          storage: 5Gi
