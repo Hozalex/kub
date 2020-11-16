@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: default
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  verbs: ["get", "list", "watch"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: default
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yaml: |
+    global:
+      scrape_interval: 30s
+    scrape_configs:
+      - job_name: "prometheus"
+        static_configs:
+          - targets: ["localhost:9090"]
+      - job_name: "kubernetes-nodes"
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - source_labels: [__address__]
+            regex: (.+):(.+)
+            target_label: __address__
+            replacement: ${1}:9101
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus
+spec: 
+  serviceName: prometheus
+  volumeClaimTemplates:
+    - metadata:
+       name: prometheus-vct
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 5Gi
+    - metadata:
+        name: prometheus-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+         requests:
+            storage: 5Gi
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      initContainers:
+        - image: busybox
+          name: prometheus-init
+          command: ["sh", "-c", "chmod 777 /data"]
+          volumeMounts:
+          - name: prometheus-data
+            mountPath: /data
+      serviceAccount: prometheus
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.19.2
+          ports:
+          - containerPort: 9090
+          volumeMounts:
+          - mountPath: /prometheus
+            name: prometheus-vct
+          - mountPath: /etc/prometheus
+            name: prometheus-config
+          - mountPath: /data
+            name: prometheus-data
+      volumes:
+        - name: prometheus-config
+          configMap:
+              name: prometheus-config
+              items:
+                - key: prometheus.yaml
+                  path: prometheus.yaml     

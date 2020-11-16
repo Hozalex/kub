@@ -20,7 +20,7 @@ spec:
           command: ['sh', '-c', 'chmod 777 /data']
           volumeMounts:
             - mountPath: /data
-              name: data
+              name: prometheus-data
       containers:
         - name: prometheus
           image: prom/prometheus:v2.19.2
@@ -31,6 +31,8 @@ spec:
               name: prometheus-vct
             - mountPath: /etc/prometheus
               name: prometheus-config
+            - mountPath: /data
+              name: prometheus-data
       volumes:
         - name: prometheus-config
           configMap:
@@ -44,6 +46,14 @@ spec:
     spec:
       accessModes: [ "ReadWriteOnce" ]
       storageClassName: "prometheus-storage-class"
+      resources:
+        requests:
+          storage: 5Gi
+  - metadata:
+      name: prometheus-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "prometheus-data-storage-class"
       resources:
         requests:
           storage: 5Gi
