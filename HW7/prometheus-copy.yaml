@@ -37,7 +37,7 @@ kind: ConfigMap
 metadata:
   name: prometheus-config
 data:
-  prometheus.yaml: |
+  prometheus.yml: |
     global:
       scrape_interval: 30s
     scrape_configs:
@@ -69,13 +69,6 @@ spec:
         resources:
           requests:
             storage: 5Gi
-    - metadata:
-        name: prometheus-data
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-         requests:
-            storage: 5Gi
   replicas: 1
   selector:
     matchLabels:
@@ -85,13 +78,23 @@ spec:
       labels:
         app: prometheus
     spec:
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+        - name: prometheus-vct
+          persistentVolumeClaim:
+              claimName: prometheus-vct
       initContainers:
         - image: busybox
           name: prometheus-init
-          command: ["sh", "-c", "chmod 777 /data"]
+          command: ["sh", "-c", "chmod 777 /prometheus"]
           volumeMounts:
-          - name: prometheus-data
-            mountPath: /data
+            - name: prometheus-vct
+              mountPath: /prometheus
       serviceAccount: prometheus
       terminationGracePeriodSeconds: 10
       containers:
@@ -102,14 +105,5 @@ spec:
           volumeMounts:
           - mountPath: /prometheus
             name: prometheus-vct
-          - mountPath: /etc/prometheus
-            name: prometheus-config
-          - mountPath: /data
-            name: prometheus-data
-      volumes:
-        - name: prometheus-config
-          configMap:
-              name: prometheus-config
-              items:
-                - key: prometheus.yaml
-                  path: prometheus.yaml     
+          - mountPath: /etc/prometheus/
+            name: config   

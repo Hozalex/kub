@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /      
+        backend:
+          serviceName: prometheus-svc
+          servicePort: 9090
