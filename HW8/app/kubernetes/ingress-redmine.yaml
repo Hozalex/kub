@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: redmine-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /      
+        backend:
+          serviceName: redmine-serv
+          servicePort: 3000
